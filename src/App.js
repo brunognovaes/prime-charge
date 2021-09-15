@@ -8,6 +8,7 @@ function App() {
   const [input, setInput] = useState(null);
   const [arrayText, setArrayText] = useState([]);
   const [position, setPosition] = useState(0);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (input) {
@@ -19,12 +20,33 @@ function App() {
     }
   }, [input]);
 
+  const handleCopied = () => {
+    copy(arrayText[position])
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000)
+  }
+
+  const handleNext = () => {
+    if (position + 1 < arrayText.length) setPosition(position + 1);
+  }
+
   return (
-    <div className="App">
-      <input type="file" onChange={ ({target}) => setInput(target.files[0])} />
-      <button type="button" onClick={() => setPosition(position + 1)}>Próximo</button>
-      <button type="button" onClick={() => copy(arrayText[position])}>Copiar</button>
-      <p>{arrayText[position]}</p>
+    <div className={style.app}>
+      <div className={style.container}>
+        <div className={style.buttonContainer}>
+          <label className={style.button}>
+            Upload File
+            <input type="file" onChange={ ({target}) => setInput(target.files[0])} />
+          </label>
+            <button className={style.button} type="button" onClick={handleCopied}>{isCopied ? "Copiado!" : "Copiar"}</button>
+        </div>
+        <p>{arrayText[position]}</p>
+        { arrayText.length >= 1 && (
+          <button className={`${style.button} ${style.copy}`} type="button" onClick={handleNext}>{`Próximo - ${position + 1}/${arrayText.length}`}</button>
+        )}
+      </div>
     </div>
   );
 }
