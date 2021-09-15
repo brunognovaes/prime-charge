@@ -1,23 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from 'react';
+import readXlsxFile from 'read-excel-file';
+import copy from 'clipboard-copy';
+
+import style from './App.module.css';
 
 function App() {
+  const [input, setInput] = useState(null);
+  const [arrayText, setArrayText] = useState([]);
+  const [position, setPosition] = useState(0);
+
+  useEffect(() => {
+    if (input) {
+      readXlsxFile(input).then((rows) => {
+        rows.shift();
+        const arr = rows.map((row) => `Placa: ${row[0]} Valor: ${Math.abs(row[1]).toFixed(2).toString().replace(/\./g, ',')} Protocolo: ${row[2]}`);
+        setArrayText(arr);
+      })
+    }
+  }, [input]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <input type="file" onChange={ ({target}) => setInput(target.files[0])} />
+      <button type="button" onClick={() => setPosition(position + 1)}>Próximo</button>
+      <button type="button" onClick={() => copy(arrayText[position])}>Copiar</button>
+      <p>{arrayText[position]}</p>
     </div>
   );
 }
