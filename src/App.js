@@ -69,10 +69,14 @@ function App() {
           </div>
             <button className={style.button} type="button" onClick={handleCopied}>{isCopied ? "Copiado!" : "Copiar"}</button>
         </div>
-        <p>{`CNPJ: ${arrayText[position].id}`}</p>
-        <p>{`Placa: ${arrayText[position].plate}`}</p>
-        <p>{`Protocol: ${arrayText[position].protocol}`}</p>
-        <p>{`Valor: ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}`}</p>
+        { arrayText.length > 0 && (
+          <>
+            <p>{`CNPJ: ${arrayText[position].id}`}</p>
+            <p>{`Placa: ${arrayText[position].plate}`}</p>
+            <p>{`Protocol: ${arrayText[position].protocol}`}</p>
+            <p>{`Valor: ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}`}</p>
+          </>
+        )}
         { arrayText.length >= 1 && (
           <button className={`${style.button} ${style.copy}`} type="button" onClick={handleNext}>{`Próximo - ${position + 1}/${arrayText.length}`}</button>
         )}
