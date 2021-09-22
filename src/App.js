@@ -12,6 +12,21 @@ function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [currentText, setCurrentText] = useState('');
   const [selectedAssociation, setSelectedAssociation] = useState('universo');
+  const [isInactive, setIsInactive] = useState(false);
+  const [shouldReset, setShouldReset] = useState(false);
+
+  useEffect(() => {
+    if (shouldReset) {
+      console.log('aaa')
+      setInput(null);
+      setArrayText([]);
+      setPosition(0);
+      setCurrentText('');
+      setSelectedAssociation('universo');
+      setIsInactive(false);
+      setShouldReset(false);
+    }
+  }, [shouldReset])
 
   useEffect(() => {
     if (input) {
@@ -30,12 +45,10 @@ function App() {
 
   useEffect(() => {
     if (arrayText.length > 0) {
-      const text = `Olá, me chamo Bruno e falo em nome da TATO Assist\nVocê realizou o serviço de protocolo ${arrayText[position].protocol} Placa: ${arrayText[position].plate} no valor de R$ ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}\n\nGentileza encaminhar a nota fiscal para este WhatsApp ou pelo e-mail nf.avista@tatoassist.com.br.\n${infos[selectedAssociation]}\n*Gentileza descrever na nota fiscal o protocolo e a placa.*\n*Envio da nota em XML e PDF.*\n\nGrato.`;
+      const text = `Olá, me chamo Bruno e falo em nome da TATO Assist\nVocê realizou o serviço de protocolo ${arrayText[position].protocol} Placa: ${arrayText[position].plate} no valor de R$ ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}\n\nGentileza encaminhar a nota fiscal para este WhatsApp ou pelo e-mail nf.avista@tatoassist.com.br.\n${infos[selectedAssociation]}\n*Gentileza descrever na nota fiscal o protocolo e a placa.*\n*Envio da nota em XML e PDF.*\n${isInactive ? '*Bloqueado para futuros acionamentos devido a falta de envio de nota fiscal.*' : ''}\n\nGrato.`;
       setCurrentText(text);
     }
-  }, [arrayText, selectedAssociation, position, input])
-
-  console.log(currentText)
+  }, [arrayText, selectedAssociation, position, input, isInactive])
 
   const handleCopied = () => {
     copy(currentText)
@@ -53,10 +66,14 @@ function App() {
     <div className={style.app}>
       <div className={style.container}>
         <div className={style.buttonContainer}>
-          <div>
+          <div className={style.leftButtonContainer}>
             <label className={style.button} htmlFor="file-upload">
-              Upload File
-              <input id="file-upload" type="file" onChange={ ({target}) => setInput(target.files[0])} />
+              Enviar Planilha
+              <input id="file-upload" type="file" onChange={ ({target}) => {
+                setShouldReset(true);
+                console.log('bbb')
+                setInput(target.files[0]);
+              }} />
             </label>
             <label htmlFor="select">
               <select id="select" value={selectedAssociation} onChange={({target}) => setSelectedAssociation(target.value)}>
@@ -67,20 +84,28 @@ function App() {
               </select>
             </label>
           </div>
-            <button className={style.button} type="button" onClick={handleCopied}>{isCopied ? "Copiado!" : "Copiar"}</button>
+          <label htmlFor="isInactive">
+            Prestador bloqueado?
+            <input type="checkbox" id="isInactive" onChange={() => setIsInactive(!isInactive)} checked={isInactive}/>
+          </label>
+          <button className={style.button} type="button" onClick={handleCopied}>{isCopied ? "Copiado!" : "Copiar"}</button>
         </div>
         { arrayText.length > 0 && (
-          <>
+          <section>
             <p>{`CNPJ: ${arrayText[position].id}`}</p>
             <p>{`Placa: ${arrayText[position].plate}`}</p>
-            <p>{`Protocol: ${arrayText[position].protocol}`}</p>
-            <p>{`Valor: ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}`}</p>
-          </>
+            <p>{`Protocolo: ${arrayText[position].protocol}`}</p>
+            <p>{`Valor: R$${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}`}</p>
+          </section>
         )}
         { arrayText.length >= 1 && (
-          <button className={`${style.button} ${style.copy}`} type="button" onClick={handleNext}>{`Próximo - ${position + 1}/${arrayText.length}`}</button>
+          <button className={`${style.button} ${style.copy}`} type="button" onClick={handleNext}>{`Próximo`}</button>
         )}
       </div>
+      {
+        arrayText.length > 0 &&
+          <p className={style.pages}>{`${position + 1}/${arrayText.length}`}</p>
+      }
     </div>
   );
 }
