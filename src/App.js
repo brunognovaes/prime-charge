@@ -14,10 +14,15 @@ function App() {
   const [selectedAssociation, setSelectedAssociation] = useState('universo');
   const [isInactive, setIsInactive] = useState(false);
   const [shouldReset, setShouldReset] = useState(false);
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    const localName = JSON.parse(localStorage.getItem('name'));
+    setName(localName)
+  }, [setName])
 
   useEffect(() => {
     if (shouldReset) {
-      console.log('aaa')
       setInput(null);
       setArrayText([]);
       setPosition(0);
@@ -45,10 +50,10 @@ function App() {
 
   useEffect(() => {
     if (arrayText.length > 0) {
-      const text = `Olá, me chamo Bruno e falo em nome da TATO Assist\nVocê realizou o serviço de protocolo ${arrayText[position].protocol} Placa: ${arrayText[position].plate} no valor de R$ ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}\n\nGentileza encaminhar a nota fiscal para este WhatsApp ou pelo e-mail nf.avista@tatoassist.com.br.\n${infos[selectedAssociation]}\n*Gentileza descrever na nota fiscal o protocolo e a placa.*\n*Envio da nota em XML e PDF.*\n${isInactive ? '*Bloqueado para futuros acionamentos devido a falta de envio de nota fiscal.*' : ''}\n\nGrato.`;
+      const text = `Olá, me chamo ${name} e falo em nome da TATO Assist\nVocê realizou o serviço de protocolo ${arrayText[position].protocol} Placa: ${arrayText[position].plate} no valor de R$ ${Math.abs(arrayText[position].price).toFixed(2).replace('.', ',')}\n\nGentileza encaminhar a nota fiscal para este WhatsApp ou pelo e-mail nf.avista@tatoassist.com.br.\n${infos[selectedAssociation]}\n*Gentileza descrever na nota fiscal o protocolo e a placa.*\n*Envio da nota em XML e PDF.*\n${isInactive ? '*Bloqueado para futuros acionamentos devido a falta de envio de nota fiscal.*' : ''}\n\nGrato.`;
       setCurrentText(text);
     }
-  }, [arrayText, selectedAssociation, position, input, isInactive])
+  }, [arrayText, selectedAssociation, position, input, isInactive, name])
 
   const handleCopied = () => {
     copy(currentText)
@@ -62,8 +67,20 @@ function App() {
     if (position + 1 < arrayText.length) setPosition(position + 1);
   }
 
+  const handleChangeName = () => {
+    localStorage.setItem('name', JSON.stringify(name));
+  }
+
   return (
     <div className={style.app}>
+      <div className={style.inputContainer}>
+        <label htmlFor="input-name">
+          <input id="input-name" value={name} onChange={({target}) => setName(target.value)} />
+        </label>
+        <label>
+          <button className={style.button} onClick={handleChangeName}>Trocar nome</button>
+        </label>
+      </div>
       <div className={style.container}>
         <div className={style.buttonContainer}>
           <div className={style.leftButtonContainer}>
@@ -71,7 +88,6 @@ function App() {
               Enviar Planilha
               <input id="file-upload" type="file" onChange={ ({target}) => {
                 setShouldReset(true);
-                console.log('bbb')
                 setInput(target.files[0]);
               }} />
             </label>
