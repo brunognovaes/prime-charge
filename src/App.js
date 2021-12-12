@@ -97,6 +97,7 @@ function App() {
                 <option value="agv">AGV</option>
                 <option value="magen">Magen</option>
                 <option value="cartruck">Cartruck</option>
+                <option value="seve">Seve</option>
               </select>
             </label>
           </div>
